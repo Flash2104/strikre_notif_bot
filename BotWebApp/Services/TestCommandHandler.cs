@@ -5,13 +5,13 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace BotWebApp.Services
 {
-    public class TestCommandHandler: ITestCommandHandler
+    public class TestCommandHandler: ITestHandler
     {
         public TestCommandHandler()
         {
         }
 
-        public void HandleCommand(string command, long botChatId)
+        public void Handle(string command, long botChatId)
         {
             if (Commands.TestCommandsMap.TryGetValue(command.TrimStart('/'), out var com))
             {
@@ -22,13 +22,14 @@ namespace BotWebApp.Services
                             BotClient.Instance.Bot.SendTextMessageAsync(botChatId, "Тестовый опросник",
                                 replyMarkup: new InlineKeyboardMarkup(new List<InlineKeyboardButton>()
                                 {
-                                new InlineKeyboardButton(){Text = "Кнопка 1", CallbackData = "Кнопка 1"},
-                                new InlineKeyboardButton(){Text = "Кнопка 2", CallbackData = "Кнопка 2"}
+                                new InlineKeyboardButton(){Text = "Кнопка 1", CallbackData = TestButtons.TestButton1.ToString() },
+                                new InlineKeyboardButton(){Text = "Кнопка 2", CallbackData = TestButtons.TestButton2.ToString() }
                             }));
                             break;
                         }
                     default:
                         {
+                            BotClient.Instance.Bot.SendTextMessageAsync(botChatId, "Команда не распознана!");
                             break;
                         }
                 }

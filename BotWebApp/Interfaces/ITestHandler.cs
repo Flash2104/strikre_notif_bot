@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace BotWebApp.Interfaces
 {
-    interface ITestCommandHandler
+    interface ITestHandler
     {
-        void HandleCommand(string command, long botChatId);
+        void Handle(string command, long botChatId);
     }
 }

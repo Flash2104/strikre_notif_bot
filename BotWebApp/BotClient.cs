@@ -38,7 +38,8 @@ namespace BotWebApp
         public ITelegramBotClient Bot { get; }
 
         private readonly string _logChannelId;
-        private readonly ITestCommandHandler _testCommandHandler;
+        private readonly ITestHandler _testCommandHandler;
+        private readonly ITestHandler _testButtonHandler;
 
         public BotClient()
         {
@@ -50,6 +51,7 @@ namespace BotWebApp
             var r = Bot.TestApiAsync().GetAwaiter().GetResult();
             _logger.Info($"Test bot request: {r}");
             _testCommandHandler = new TestCommandHandler();
+            _testButtonHandler = new TestButtonHandler();
             Bot.OnMessage += ProcessMessage;
             Bot.OnCallbackQuery += BotOnOnCallbackQuery;
             Bot.StartReceiving();
@@ -68,7 +70,7 @@ namespace BotWebApp
                 var resp = Bot.SendTextMessageAsync(new ChatId(_logChannelId),
                     $"OnOnCallbackQuery Command: \"{query.Message.Text}\". User: {query.Message.Chat.FirstName} {query.Message.Chat.LastName}.\n").GetAwaiter().GetResult();
                 _logger.Info($"Logs channel message: \"{resp?.Text}\"; chatId: \"{resp?.Chat?.Id}\"");
-                HandleMessage(query.Message);
+                HandleCallBack(query.Message);
             }
             catch (Exception e)
             {
@@ -114,12 +116,32 @@ namespace BotWebApp
                 var chatId = message.Chat.Id;
                 if (message.Text.StartsWith('/'))
                 {
-                    _testCommandHandler.HandleCommand(message.Text, chatId);
+                    _testCommandHandler.Handle(message.Text, chatId);
                 }
             }
             catch (Exception e)
             {
                 var messageEx = $"HandleMessage Exception:\n" +
+                                $"Command: \"{message.Text}\".\n" +
+                                $"User: {message.Chat.FirstName} {message.Chat.LastName}.\n" +
+                                $"Message: {e.Message}\n" +
+                                $"StackTrace: {e.StackTrace}.\n";
+                _logger.Error(messageEx);
+                Bot.SendTextMessageAsync(_logChannelId, messageEx);
+            }
+
+        }
+
+        private void HandleCallBack(Message message)
+        {
+            try
+            {
+                var chatId = message.Chat.Id;
+                _testButtonHandler.Handle(message.Text, chatId);
+            }
+            catch (Exception e)
+            {
+                var messageEx = $"HandleCallBack Exception:\n" +
                                 $"Command: \"{message.Text}\".\n" +
                                 $"User: {message.Chat.FirstName} {message.Chat.LastName}.\n" +
                                 $"Message: {e.Message}\n" +
