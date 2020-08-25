@@ -58,31 +58,50 @@ namespace BotWebApp
 
         private void BotOnOnCallbackQuery(object sender, CallbackQueryEventArgs callbackQueryEventArgs)
         {
-            _logger.Info("Bot OnOnCallbackQuery");
             var query = callbackQueryEventArgs.CallbackQuery;
-            query.Message.Text = query.Data;
-            _logger.Info($"OnOnCallbackQuery message: \"{ query.Message?.Text}\"; chatId: { query.Message?.Chat.Id}");
-            ProcessMessage(query.Message);
+            try
+            {
+                _logger.Info("Bot OnOnCallbackQuery");
+                query.Message.Text = query.Data;
+                _logger.Info($"OnOnCallbackQuery message: \"{ query.Message?.Text}\"; chatId: { query.Message?.Chat.Id}");
+                var resp = Bot.SendTextMessageAsync(new ChatId(_logChannelId),
+                    $"OnOnCallbackQuery Command: \"{query.Message.Text}\". User: {query.Message.Chat.FirstName} {query.Message.Chat.LastName}.\n").GetAwaiter().GetResult();
+                _logger.Info($"Logs channel message: \"{resp?.Text}\"; chatId: \"{resp?.Chat?.Id}\"");
+                ProcessMessage(query.Message);
+            }
+            catch (Exception e)
+            {
+                var messageEx = $"OnOnCallbackQuery Exception:\n" +
+                                $"Command: \"{query.Message.Text}\".\n" +
+                                $"User: {query.Message.Chat.FirstName} {query.Message.Chat.LastName}.\n" +
+                                $"Message: {e.Message}\n" +
+                                $"StackTrace: {e.StackTrace}.\n";
+                _logger.Error(messageEx);
+                Bot.SendTextMessageAsync(_logChannelId, messageEx);
+            }
         }
 
         private void ProcessMessage(object sender, MessageEventArgs messageEventArgs)
         {
-            _logger.Info("Bot ProcessMessage");
             Message message = messageEventArgs.Message;
-            _logger.Info($"ProcessMessage message: \"{message.Text}\"; chatId: \"{message.Chat.Id}\"");
-            var resp = Bot.SendTextMessageAsync(new ChatId(_logChannelId), $"Command: \"{message.Text}\". User: {message.Chat.FirstName} {message.Chat.LastName}.\n").GetAwaiter().GetResult();
-            _logger.Info($"Logs channel message: \"{resp?.Text}\"; chatId: \"{resp?.Chat?.Id}\"");
             try
             {
+                _logger.Info("Bot ProcessMessage");
+                _logger.Info($"ProcessMessage message: \"{message.Text}\"; chatId: \"{message.Chat.Id}\"");
+                var resp = Bot.SendTextMessageAsync(new ChatId(_logChannelId),
+                    $"ProcessMessage Command: \"{message.Text}\". User: {message.Chat.FirstName} {message.Chat.LastName}.\n").GetAwaiter().GetResult();
+                _logger.Info($"Logs channel message: \"{resp?.Text}\"; chatId: \"{resp?.Chat?.Id}\"");
                 ProcessMessage(message);
             }
             catch (Exception e)
             {
-                Bot.SendTextMessageAsync(_logChannelId, $"Exception:\n" +
-                                                        $"Command: \"{message.Text}\".\n" +
-                                                        $"User: {message.Chat.FirstName} {message.Chat.LastName}.\n" +
-                                                        $"Message: {e.Message}\n" +
-                                                        $"StackTrace: {e.StackTrace}.\n");
+                var messageEx = $"ProcessMessage Exception:\n" +
+                                $"Command: \"{message.Text}\".\n" +
+                                $"User: {message.Chat.FirstName} {message.Chat.LastName}.\n" +
+                                $"Message: {e.Message}\n" +
+                                $"StackTrace: {e.StackTrace}.\n";
+                _logger.Error(messageEx);
+                Bot.SendTextMessageAsync(_logChannelId, messageEx);
             }
 
         }
