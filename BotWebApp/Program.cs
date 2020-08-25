@@ -11,11 +11,11 @@ namespace BotWebApp
     {
         public static void Main(string[] args)
         {
-            var logger = NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
+            var logger = NLogBuilder.ConfigureNLog("NLog.config").GetCurrentClassLogger();
             try
             {
                 logger.Debug("init main function");
-                var a = new BotClient(logger);
+                BotClient.Instance.Init();
                 CreateHostBuilder(args).Build().Run();
             }
             catch (Exception ex)

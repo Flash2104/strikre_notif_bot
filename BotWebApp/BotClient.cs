@@ -1,6 +1,8 @@
 ﻿using System;
-using System.Net;
+using BotWebApp.Interfaces;
+using BotWebApp.Services;
 using NLog;
+using NLog.Web;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types;
@@ -9,52 +11,51 @@ namespace BotWebApp
 {
     public class BotClient: IBotClient
     {
-        //private static readonly object instanceLock = new object();
+        private static readonly object instanceLock = new object();
 
-        //private static volatile BotClient instance;
+        private static volatile BotClient instance;
 
-        //public static BotClient Instance
-        //{
-        //    get
-        //    {
-        //        if (instance != null)
-        //        {
-        //            return instance;
-        //        }
-        //        lock (instanceLock)
-        //        {
-        //            if (instance == null)
-        //            {
-        //                instance = new BotClient();
-        //            }
-        //        }
-        //        return instance;
-        //    }
-        //}
+        public static BotClient Instance
+        {
+            get
+            {
+                if (instance != null)
+                {
+                    return instance;
+                }
+                lock (instanceLock)
+                {
+                    if (instance == null)
+                    {
+                        instance = new BotClient();
+                    }
+                }
+                return instance;
+            }
+        }
 
         private readonly ILogger _logger;
         public ITelegramBotClient Bot { get; }
 
         private readonly string _logChannelId;
+        private readonly ITestCommandHandler _testCommandHandler;
 
-        public BotClient(ILogger logger)
+        public BotClient()
         {
-            _logger = logger;
+            _logger = NLogBuilder.ConfigureNLog("NLog.config").GetCurrentClassLogger();
             _logger.Info("BotClient is initialized");
             var configuration = ConfigurationModel.GetConfiguration();
             _logChannelId = configuration.TelegramConfiguration.LogChannelId;
-            ////WebProxy proxy = new WebProxy(configuration.ProxyConfiguration.Host, configuration.ProxyConfiguration.Port);
-            ////var wc = new WebClient();
-            ////wc.Proxy = proxy;
-            //// var resp = wc.DownloadString("http://www.holidaywebservice.com/HolidayService_v2/HolidayService2.asmx?wsdl");
             Bot = new TelegramBotClient(configuration.TelegramConfiguration.BotToken);
             var r = Bot.TestApiAsync().GetAwaiter().GetResult();
             _logger.Info($"Test bot request: {r}");
+            _testCommandHandler = new TestCommandHandler();
             Bot.OnMessage += ProcessMessage;
             Bot.OnCallbackQuery += BotOnOnCallbackQuery;
             Bot.StartReceiving();
         }
 
+        public void Init() { }
 
         private void BotOnOnCallbackQuery(object sender, CallbackQueryEventArgs callbackQueryEventArgs)
         {
@@ -67,7 +68,7 @@ namespace BotWebApp
                 var resp = Bot.SendTextMessageAsync(new ChatId(_logChannelId),
                     $"OnOnCallbackQuery Command: \"{query.Message.Text}\". User: {query.Message.Chat.FirstName} {query.Message.Chat.LastName}.\n").GetAwaiter().GetResult();
                 _logger.Info($"Logs channel message: \"{resp?.Text}\"; chatId: \"{resp?.Chat?.Id}\"");
-                ProcessMessage(query.Message);
+                HandleMessage(query.Message);
             }
             catch (Exception e)
             {
@@ -91,7 +92,7 @@ namespace BotWebApp
                 var resp = Bot.SendTextMessageAsync(new ChatId(_logChannelId),
                     $"ProcessMessage Command: \"{message.Text}\". User: {message.Chat.FirstName} {message.Chat.LastName}.\n").GetAwaiter().GetResult();
                 _logger.Info($"Logs channel message: \"{resp?.Text}\"; chatId: \"{resp?.Chat?.Id}\"");
-                ProcessMessage(message);
+                HandleMessage(message);
             }
             catch (Exception e)
             {
@@ -106,9 +107,27 @@ namespace BotWebApp
 
         }
 
-        private void ProcessMessage(Message message)
+        private void HandleMessage(Message message)
         {
-            var chatId = message.Chat.Id;
+            try
+            {
+                var chatId = message.Chat.Id;
+                if (message.Text.StartsWith('/'))
+                {
+                    _testCommandHandler.HandleCommand(message.Text, chatId);
+                }
+            }
+            catch (Exception e)
+            {
+                var messageEx = $"HandleMessage Exception:\n" +
+                                $"Command: \"{message.Text}\".\n" +
+                                $"User: {message.Chat.FirstName} {message.Chat.LastName}.\n" +
+                                $"Message: {e.Message}\n" +
+                                $"StackTrace: {e.StackTrace}.\n";
+                _logger.Error(messageEx);
+                Bot.SendTextMessageAsync(_logChannelId, messageEx);
+            }
+
         }
     }
 
