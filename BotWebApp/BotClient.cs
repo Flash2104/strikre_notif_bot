@@ -165,7 +165,7 @@ namespace BotWebApp
             }
             if (!string.IsNullOrWhiteSpace(message.From.FirstName))
             {
-                return message.From.FirstName + message.From.LastName;
+                return message.From.FirstName + " " + message.From.LastName;
             }
 
             return message.Chat.Title;
