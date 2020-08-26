@@ -161,11 +161,11 @@ namespace BotWebApp
         {
             if (!string.IsNullOrWhiteSpace(message.From.Username))
             {
-                return message.From.Username;
+                return "@" + message.From.Username;
             }
-            if (!string.IsNullOrWhiteSpace(message.Chat.FirstName))
+            if (!string.IsNullOrWhiteSpace(message.From.FirstName))
             {
-                return message.From.FirstName + " " + message.From.LastName;
+                return message.From.FirstName + message.From.LastName;
             }
 
             return message.Chat.Title;
@@ -176,7 +176,7 @@ namespace BotWebApp
             string userMessage = message.Text;
             string userName = GetUserOrGroupName(message);
             //Random rnd = new Random();
-            if (userMessage.Contains("300")) return $"@{userName}, отсоси у тракториста!";
+            if (userMessage.Contains("300")) return $"{userName}, отсоси у тракториста!";
             else return "";
         }
     }
