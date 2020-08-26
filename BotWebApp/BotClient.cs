@@ -62,13 +62,14 @@ namespace BotWebApp
         private void BotOnOnCallbackQuery(object sender, CallbackQueryEventArgs callbackQueryEventArgs)
         {
             var query = callbackQueryEventArgs.CallbackQuery;
+            string user = GetUserOrGroupName(query.Message);
             try
             {
                 _logger.Info("Bot OnOnCallbackQuery");
                 query.Message.Text = query.Data;
                 _logger.Info($"OnOnCallbackQuery message: \"{ query.Message?.Text}\"; chatId: { query.Message?.Chat.Id}");
                 var resp = Bot.SendTextMessageAsync(new ChatId(_logChannelId),
-                    $"OnOnCallbackQuery Command: \"{query.Message.Text}\". User: {query.Message.Chat.FirstName} {query.Message.Chat.LastName}.\n").GetAwaiter().GetResult();
+                    $"OnOnCallbackQuery Command: \"{query.Message.Text}\". User: {user}.\n").GetAwaiter().GetResult();
                 _logger.Info($"Logs channel message: \"{resp?.Text}\"; chatId: \"{resp?.Chat?.Id}\"");
                 HandleCallBack(query.Message);
             }
@@ -76,7 +77,7 @@ namespace BotWebApp
             {
                 var messageEx = $"OnOnCallbackQuery Exception:\n" +
                                 $"Command: \"{query.Message.Text}\".\n" +
-                                $"User: {query.Message.Chat.FirstName} {query.Message.Chat.LastName}.\n" +
+                                $"User: {user}.\n" +
                                 $"Message: {e.Message}\n" +
                                 $"StackTrace: {e.StackTrace}.\n";
                 _logger.Error(messageEx);
@@ -87,12 +88,13 @@ namespace BotWebApp
         private void ProcessMessage(object sender, MessageEventArgs messageEventArgs)
         {
             Message message = messageEventArgs.Message;
+            string user = GetUserOrGroupName(message);
             try
             {
                 _logger.Info("Bot ProcessMessage");
                 _logger.Info($"ProcessMessage message: \"{message.Text}\"; chatId: \"{message.Chat.Id}\"");
                 var resp = Bot.SendTextMessageAsync(new ChatId(_logChannelId),
-                    $"ProcessMessage Command: \"{message.Text}\". User: {message.Chat.FirstName} {message.Chat.LastName}.\n").GetAwaiter().GetResult();
+                    $"ProcessMessage Command: \"{message.Text}\". User: {user}.\n").GetAwaiter().GetResult();
                 _logger.Info($"Logs channel message: \"{resp?.Text}\"; chatId: \"{resp?.Chat?.Id}\"");
                 HandleMessage(message);
             }
@@ -100,7 +102,7 @@ namespace BotWebApp
             {
                 var messageEx = $"ProcessMessage Exception:\n" +
                                 $"Command: \"{message.Text}\".\n" +
-                                $"User: {message.Chat.FirstName} {message.Chat.LastName}.\n" +
+                                $"User: {user}.\n" +
                                 $"Message: {e.Message}\n" +
                                 $"StackTrace: {e.StackTrace}.\n";
                 _logger.Error(messageEx);
@@ -111,6 +113,7 @@ namespace BotWebApp
 
         private void HandleMessage(Message message)
         {
+            string user = GetUserOrGroupName(message);
             try
             {
                 var chatId = message.Chat.Id;
@@ -123,7 +126,7 @@ namespace BotWebApp
             {
                 var messageEx = $"HandleMessage Exception:\n" +
                                 $"Command: \"{message.Text}\".\n" +
-                                $"User: {message.Chat.FirstName} {message.Chat.LastName}.\n" +
+                                $"User: {user}.\n" +
                                 $"Message: {e.Message}\n" +
                                 $"StackTrace: {e.StackTrace}.\n";
                 _logger.Error(messageEx);
@@ -134,6 +137,7 @@ namespace BotWebApp
 
         private void HandleCallBack(Message message)
         {
+            string user = GetUserOrGroupName(message);
             try
             {
                 var chatId = message.Chat.Id;
@@ -143,13 +147,27 @@ namespace BotWebApp
             {
                 var messageEx = $"HandleCallBack Exception:\n" +
                                 $"Command: \"{message.Text}\".\n" +
-                                $"User: {message.Chat.FirstName} {message.Chat.LastName}.\n" +
+                                $"User: {user}.\n" +
                                 $"Message: {e.Message}\n" +
                                 $"StackTrace: {e.StackTrace}.\n";
                 _logger.Error(messageEx);
                 Bot.SendTextMessageAsync(_logChannelId, messageEx);
             }
 
+        }
+
+        private string GetUserOrGroupName(Message message)
+        {
+            if (!string.IsNullOrWhiteSpace(message.From.Username))
+            {
+                return message.From.Username;
+            }
+            if (!string.IsNullOrWhiteSpace(message.Chat.FirstName))
+            {
+                return message.Chat.Username;
+            }
+
+            return message.Chat.Title;
         }
     }
 
