@@ -97,6 +97,7 @@ namespace BotWebApp
                     $"ProcessMessage Command: \"{message.Text}\". User: {user}.\n").GetAwaiter().GetResult();
                 _logger.Info($"Logs channel message: \"{resp?.Text}\"; chatId: \"{resp?.Chat?.Id}\"");
                 HandleMessage(message);
+                var resp1 = Bot.SendTextMessageAsync(message.Chat.Id, BotResponse(message));
             }
             catch (Exception e)
             {
@@ -168,6 +169,15 @@ namespace BotWebApp
             }
 
             return message.Chat.Title;
+        }
+
+        private string BotResponse(Message message)
+        {
+            string userMessage = message.Text;
+            string userName = GetUserOrGroupName(message);
+            //Random rnd = new Random();
+            if (userMessage.Contains("300")) return $"@{userName}, отсоси у тракториста!";
+            else return "";
         }
     }
 
