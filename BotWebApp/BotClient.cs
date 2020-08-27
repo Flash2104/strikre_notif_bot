@@ -174,9 +174,8 @@ namespace BotWebApp
         private string BotResponse(Message message)
         {
             string userMessage = message.Text;
-            string userName = GetUserOrGroupName(message);
-            //Random rnd = new Random();
-            if (userMessage.Contains("300")) return $"{userName}, отсоси у тракториста!";
+            string userName = GetUserOrGroupName(message);            
+            if (userMessage.Contains("300") || userMessage.Contains("ттриста")) return $"{userName}, отсоси у тракториста!";
             else return "";
         }
     }
