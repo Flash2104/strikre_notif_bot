@@ -1,15 +1,17 @@
-﻿using System;
+﻿using BotWebApp.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace BotWebApp.Models
 {
-    public class AirsoftEvent
+    class AirsoftEvent : IEvent
     {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public DateTime Date { get; set; }
-        public string Comment { get; set; }
+        public int Id { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string Name { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public DateTime Date { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string Comment { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string User { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
     }
 }

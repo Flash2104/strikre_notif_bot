@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 
 namespace BotWebApp.Interfaces
 {
-    interface IRepository<T>: IDisposable where T: class
-    {
-        void Create(T item);
-        void Save(T item);
-        void Delete(T item);
-        void Read(T item);
+    interface IRepository<T> where T: IEvent
+    {        
+        Task<T> CreateAsync(T item);
+        Task<T> UpdateAsync(T item);        
+        void Delete(int id);
+        Task<T> ReadAsync(int id);
 
     }
 }
