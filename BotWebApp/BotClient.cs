@@ -175,7 +175,7 @@ namespace BotWebApp
         {
             string userMessage = message.Text;
             string userName = GetUserOrGroupName(message);            
-            if (userMessage.Contains("300") || userMessage.Contains("ттриста")) return $"{userName}, отсоси у тракториста!";
+            if (userMessage.Contains("300") || userMessage.Contains("триста")) return $"{userName}, отсоси у тракториста!";
             else return "";
         }
     }
