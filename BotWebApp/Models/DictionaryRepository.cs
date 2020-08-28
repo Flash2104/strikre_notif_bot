@@ -6,11 +6,17 @@ using System.Threading.Tasks;
 
 namespace BotWebApp.Models
 {
-    public class DictionaryRepository<T> : IRepository<T> where T: IEvent
+    public class DictionaryRepository<T> : IRepository<T> where T: IEntity
     {
-        private Dictionary<int, T> dict = new Dictionary<int, T>();
+        private Dictionary<int, T> dict = new Dictionary<int, T>();        
         public Task<T> CreateAsync(T item)
         {
+            int generatedId = dict.Keys.Last();
+            while (dict.ContainsKey(++generatedId))
+            {
+                generatedId++;
+            }
+            item.Id = generatedId;
             dict.Add(item.Id, item);
             return new Task<T>(() => item);
         }
@@ -23,11 +29,15 @@ namespace BotWebApp.Models
         public Task<T> ReadAsync(int id)
         {
             return new Task<T>(() => dict[id]);
-        }
+        }        
 
-        public Task<T> UpdateAsync(T item)
+        public T Update(T item)
         {
-            throw new NotImplementedException();
+            return item;
+        }
+        public Dictionary<int, T> GetAll()
+        {
+            return dict;
         }
     }
 }
