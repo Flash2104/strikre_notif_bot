@@ -11,6 +11,6 @@ namespace BotWebApp.Interfaces
         T Update(T item);        
         void Delete(int id);
         Task<T> ReadAsync(int id);
-
+        Dictionary<int, T> GetAll();
     }
 }
