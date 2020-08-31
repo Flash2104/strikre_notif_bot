@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using BotWebApp.Interfaces;
+using BotWebApp.State.Airsoft;
+using System.Collections.Generic;
 
 namespace BotWebApp.Models
 {
@@ -8,6 +10,10 @@ namespace BotWebApp.Models
         {
             { "test_command_1", TestCommands.TestCommand1 }
         };
+        public static Dictionary<string, IAirsoftEventState> AirsoftCommandsMap { get; set; } = new Dictionary<string, IAirsoftEventState>()
+        {
+            {"add", new StartCreationAirsoftEventState() }
+        };
     }
 
     public enum TestCommands
@@ -15,4 +21,11 @@ namespace BotWebApp.Models
         None = 0,
         TestCommand1 = 1
     }
+
+    public enum AirsoftCommands
+    {
+        None = 0,
+        AddEvent = 1
+    }
+
 }
