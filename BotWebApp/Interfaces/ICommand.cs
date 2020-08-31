@@ -5,7 +5,8 @@ using System.Threading.Tasks;
 
 namespace BotWebApp.Interfaces
 {
-    public class ICommand
+    public interface ICommand
     {
+        void Execute();
     }
 }

@@ -10,7 +10,7 @@ namespace BotWebApp.Models
         {
             { "test_command_1", TestCommands.TestCommand1 }
         };
-        public static Dictionary<string, IAirsoftEventState> AirsoftCommandsMap { get; set; } = new Dictionary<string, IAirsoftEventState>()
+        public static Dictionary<string, ICommand> AirsoftCommandsMap { get; set; } = new Dictionary<string, ICommand>()
         {
             {"add", new StartCreationAirsoftEventState() }
         };
