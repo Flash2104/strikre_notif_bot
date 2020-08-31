@@ -4,13 +4,14 @@ using System.Collections.Generic;
 
 namespace BotWebApp.Models
 {
-    public static class Commands
+    public static class CommandsMap
     {
         public static Dictionary<string, TestCommands> TestCommandsMap { get; set; } = new Dictionary<string, TestCommands>()
         {
             { "test_command_1", TestCommands.TestCommand1 }
         };
-        public static Dictionary<string, ICommand> AirsoftCommandsMap { get; set; } = new Dictionary<string, ICommand>()
+
+        public static Dictionary<string, IAirsoftEventState> AirsoftCommandsMap { get; set; } = new Dictionary<string, IAirsoftEventState>()
         {
             {"add", new StartCreationAirsoftEventState() }
         };

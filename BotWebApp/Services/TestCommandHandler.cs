@@ -13,7 +13,7 @@ namespace BotWebApp.Services
 
         public void Handle(string command, long botChatId)
         {
-            if (Commands.TestCommandsMap.TryGetValue(command.TrimStart('/'), out var com))
+            if (CommandsMap.TestCommandsMap.TryGetValue(command.TrimStart('/'), out var com))
             {
                 switch (com)
                 {
